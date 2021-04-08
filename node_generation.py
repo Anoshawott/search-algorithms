@@ -181,16 +181,30 @@ class action_space:
             # print('------------------')
             # print('fringe', fringe)
             children, parent_node=self.expand_children(number=i[0], changed=i[1], root_path=i[2])
+
+            temp_expanded=[]
+            for a in expanded:
+                temp_expanded.append([a[0],a[1]])
+
             if self.forbidden==None:
-                for k in children:
-                    child_node=node(value=k[0], parent=parent_node)
-                    k[2]=child_node
-                    parent_node.add_child(child_node)
-                    fringe.append(k)
+                a=0
+                # print(temp_expanded)
+                while a != len(children):
+                    k = children[a]
+                    if [k[0],k[1]] in temp_expanded:
+                        # print([k[0],k[1]])
+                        del children[a]
+                    else:
+                        # print('else')
+                        child_node=node(value=k[0], parent=parent_node)
+                        k[2]=child_node
+                        parent_node.add_child(child_node)
+                        fringe.append(k)
+                        a+=1
             else:
                 j=0
                 while len(children)!=j:
-                    if children[j][0] in self.forbidden:
+                    if children[j][0] in self.forbidden or [children[j][0],children[j][1]] in temp_expanded:
                         del children[j]
                         continue
                     else:
@@ -256,16 +270,30 @@ class action_space:
             children.reverse()
             expanded.append(fringe[0])
             del fringe[0]
+
+            temp_expanded=[]
+            for a in expanded:
+                temp_expanded.append([a[0],a[1]])
+
             if self.forbidden==None:
-                for k in children:
-                    child_node=node(value=k[0], parent=parent_node)
-                    k[2]=child_node
-                    parent_node.add_child(child_node)
-                    fringe.insert(0,k)
+                a=0
+                # print(temp_expanded)
+                while a != len(children):
+                    k = children[a]
+                    if [k[0],k[1]] in temp_expanded:
+                        # print([k[0],k[1]])
+                        del children[a]
+                    else:
+                        # print('else')
+                        child_node=node(value=k[0], parent=parent_node)
+                        k[2]=child_node
+                        parent_node.add_child(child_node)
+                        fringe.insert(0,k)
+                        a+=1
             else:
                 j=0
                 while len(children)!=j:
-                    if children[j][0] in self.forbidden:
+                    if children[j][0] in self.forbidden or [children[j][0],children[j][1]] in temp_expanded:
                         del children[j]
                         continue
                     else:
@@ -274,6 +302,25 @@ class action_space:
                         parent_node.add_child(child_node)
                         fringe.insert(0,children[j])
                         j+=1
+
+            # if self.forbidden==None:
+            #     for k in children:
+            #         child_node=node(value=k[0], parent=parent_node)
+            #         k[2]=child_node
+            #         parent_node.add_child(child_node)
+            #         fringe.insert(0,k)
+            # else:
+            #     j=0
+            #     while len(children)!=j:
+            #         if children[j][0] in self.forbidden:
+            #             del children[j]
+            #             continue
+            #         else:
+            #             child_node=node(value=children[j][0], parent=parent_node)
+            #             children[j][2]=child_node
+            #             parent_node.add_child(child_node)
+            #             fringe.insert(0,children[j])
+            #             j+=1
             
             # print('expanded')
             # for i in expanded:
@@ -329,48 +376,61 @@ class action_space:
             if len(expanded)==1000:
                 return print('Limit has been reached.')
             
-            if depth_limit == 
-            # print('------------------')
-            # print('fringe', fringe)
-            children, parent_node=self.expand_children(number=i[0], changed=i[1], root_path=i[2])
-            children.reverse()
-            expanded.append(fringe[0])
-            del fringe[0]
-            if self.forbidden==None:
-                for k in children:
-                    child_node=node(value=k[0], parent=parent_node)
-                    k[2]=child_node
-                    parent_node.add_child(child_node)
-                    fringe.insert(0,k)
-            else:
-                j=0
-                while len(children)!=j:
-                    if children[j][0] in self.forbidden:
-                        del children[j]
-                        continue
-                    else:
-                        child_node=node(value=children[j][0], parent=parent_node)
-                        children[j][2]=child_node
-                        parent_node.add_child(child_node)
-                        fringe.insert(0,children[j])
-                        j+=1
+            if depth_limit != Tree.depth(node=i[2]):
+                # print('------------------')
+                # print('fringe', fringe)
+                children, parent_node=self.expand_children(number=i[0], changed=i[1], root_path=i[2])
+                children.reverse()
+                expanded.append(fringe[0])
+                del fringe[0]
+                if self.forbidden==None:
+                    a=0
+                    # print(temp_expanded)
+                    while a != len(children):
+                        k = children[a]
+                        if [k[0],k[1]] in temp_expanded:
+                            # print([k[0],k[1]])
+                            del children[a]
+                        else:
+                            # print('else')
+                            child_node=node(value=k[0], parent=parent_node)
+                            k[2]=child_node
+                            parent_node.add_child(child_node)
+                            fringe.insert(0,k)
+                            a+=1
+                else:
+                    j=0
+                    while len(children)!=j:
+                        if children[j][0] in self.forbidden or [children[j][0],children[j][1]] in temp_expanded:
+                            del children[j]
+                            continue
+                        else:
+                            child_node=node(value=children[j][0], parent=parent_node)
+                            children[j][2]=child_node
+                            parent_node.add_child(child_node)
+                            fringe.insert(0,children[j])
+                            j+=1
+                
+                # print('expanded')
+                # for i in expanded:
+                #     print(i[0])
+                # print('children')
+                # for i in children:
+                #     print(i[0])
+                # print('fringe')
+                # for i in fringe:
+                #     print(i[0])
             
-            # print('expanded')
-            # for i in expanded:
-            #     print(i[0])
-            # print('children')
-            # for i in children:
-            #     print(i[0])
-            # print('fringe')
-            # for i in fringe:
-            #     print(i[0])
-        
+            else:
+                expanded.append(i)
+                del fringe[0]
+
         else:
             result='No solution found.'
 
-            return 
+            return result
 
-        return print(path_str+'\n'+final_str)
+        return path_str+'\n'+final_str
     
     def IDS(self):
         print("IDS Method")
@@ -379,9 +439,11 @@ class action_space:
         depth_count=0
         while solution_not_found:
             result = self.DFS_IDS(depth_limit=depth_count)
-            if result != 
-
-        return
+            if result != 'No solution found.':
+                depth_count+=1
+            else:
+                solution_not_found=False
+        return print(result)
     
     def Greedy(self):
         print("Greedy Method")

@@ -1,10 +1,7 @@
-thing=True
+thing=[[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]]
 
-i=0
-while thing:
-    print(i)
-    i+=1
-    if i==4:
-        thing=False
+if [5,6] in thing:
+    print('working')
 
-print(i)
+
+print(thing)
