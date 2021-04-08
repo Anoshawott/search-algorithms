@@ -476,15 +476,225 @@ class action_space:
         final_expand=final_expand+','+expanded
         return print(result+'\n'+final_expand)
     
-    def Greedy(self):
-        print("Greedy Method")
 
-        return
+
+
     
+
+    def calc_greedy_distance(self, value):
+        split_value=[int(char) for char in value]
+        split_goal=[int(char) for char in self.goal]
+
+        i=0
+        distance=0
+        while i != len(split_value):
+            distance=distance+abs(split_value[i]-split_goal[i])
+            i+=1
+
+        return distance
+
+    def dist_ordered_fringe(self, children, fringe):
+        new_temp_fringe={}
+        new_final_fringe=[]
+        for i in children:
+            val=i[0]
+            dist=self.calc_greedy_distance(value=val)
+            new_temp_fringe[dist]=i
+                
+        for i in sorted(new_temp_fringe):
+            new_final_fringe.append(new_temp_fringe[i])
+
+        return new_final_fringe
+
+    def Greedy(self):
+        # print("Greedy Method")
+        starting_node=node(value=self.start)
+        Tree = tree(root=starting_node)
+        fringe=[[self.start, None, starting_node]]
+        expanded=[]
+
+        while len(fringe)!=0:
+            i=fringe[0]
+            if i[0]==self.goal:
+                expanded.append(i)
+                try:
+                    # presenting expanded nodes
+                    beginning=0
+                    for i in expanded:
+                        if beginning==0:
+                            final_str=i[0]
+                            beginning+=1
+                        else:
+                            final_str=final_str+','+i[0]
+
+                    # presenting path of nodes
+                    pathway=Tree.root_pathway(child=expanded[-1][2])
+
+                    beginning=0
+                    for i in reversed(pathway):
+                        if beginning==0:
+                            path_str=i
+                            beginning+=1
+                        else:
+                            path_str=path_str+','+i
+
+                except:        
+                    print('Nothing to process...')
+
+                break
+            if len(expanded)==1000:
+                return print('Limit has been reached.')
+            # print('------------------')
+            # print('fringe', fringe)
+            children, parent_node=self.expand_children(number=i[0], changed=i[1], root_path=i[2])
+            expanded.append(fringe[0])
+            del fringe[0]
+
+            temp_expanded=[]
+            for a in expanded:
+                temp_expanded.append([a[0],a[1]])
+
+            if self.forbidden==None:
+                a=0
+                # print(temp_expanded)
+                while a != len(children):
+                    k = children[a]
+                    if [k[0],k[1]] in temp_expanded:
+                        # print([k[0],k[1]])
+                        del children[a]
+                    else:
+                        # print('else')
+                        child_node=node(value=k[0], parent=parent_node)
+                        k[2]=child_node
+                        parent_node.add_child(child_node)
+                        fringe.insert(0,k)
+                        a+=1
+            else:
+                j=0
+                while len(children)!=j:
+                    if children[j][0] in self.forbidden or [children[j][0],children[j][1]] in temp_expanded:
+                        del children[j]
+                        continue
+                    else:
+                        child_node=node(value=children[j][0], parent=parent_node)
+                        children[j][2]=child_node
+                        parent_node.add_child(child_node)
+                        fringe.insert(0,children[j])
+                        j+=1
+            
+            fringe=self.dist_ordered_fringe(children=children, fringe=fringe)
+            
+
+        return print(path_str+'\n'+final_str)
+    
+
+
+
+    def calc_astar_distance(self, node):
+        split_value=[int(char) for char in node[0]]
+        split_goal=[int(char) for char in self.goal]
+        
+
+        i=0
+        distance=0
+        while i != len(split_value):
+            distance=distance+abs(split_value[i]-split_goal[i])
+            i+=1
+
+        return distance
+
+
+    def astar_dist_ordered_fringe(self, children, fringe, current_tree):
+        new_temp_fringe={}
+        new_final_fringe=[]
+        for i in children:
+            dist=self.calc_astar_distance(node=i)
+            new_temp_fringe[dist]=i
+                
+        for i in sorted(new_temp_fringe):
+            new_final_fringe.append(new_temp_fringe[i])
+
+        return new_final_fringe
+
     def A_Star(self):
         print("A_Star Method")
+        starting_node=node(value=self.start)
+        Tree = tree(root=starting_node)
+        fringe=[[self.start, None, starting_node]]
+        expanded=[]
 
-        return
+        while len(fringe)!=0:
+            i=fringe[0]
+            if i[0]==self.goal:
+                expanded.append(i)
+                try:
+                    # presenting expanded nodes
+                    beginning=0
+                    for i in expanded:
+                        if beginning==0:
+                            final_str=i[0]
+                            beginning+=1
+                        else:
+                            final_str=final_str+','+i[0]
+
+                    # presenting path of nodes
+                    pathway=Tree.root_pathway(child=expanded[-1][2])
+
+                    beginning=0
+                    for i in reversed(pathway):
+                        if beginning==0:
+                            path_str=i
+                            beginning+=1
+                        else:
+                            path_str=path_str+','+i
+
+                except:        
+                    print('Nothing to process...')
+
+                break
+            if len(expanded)==1000:
+                return print('Limit has been reached.')
+            # print('------------------')
+            # print('fringe', fringe)
+            children, parent_node=self.expand_children(number=i[0], changed=i[1], root_path=i[2])
+            expanded.append(fringe[0])
+            del fringe[0]
+
+            temp_expanded=[]
+            for a in expanded:
+                temp_expanded.append([a[0],a[1]])
+
+            if self.forbidden==None:
+                a=0
+                # print(temp_expanded)
+                while a != len(children):
+                    k = children[a]
+                    if [k[0],k[1]] in temp_expanded:
+                        # print([k[0],k[1]])
+                        del children[a]
+                    else:
+                        # print('else')
+                        child_node=node(value=k[0], parent=parent_node)
+                        k[2]=child_node
+                        parent_node.add_child(child_node)
+                        fringe.insert(0,k)
+                        a+=1
+            else:
+                j=0
+                while len(children)!=j:
+                    if children[j][0] in self.forbidden or [children[j][0],children[j][1]] in temp_expanded:
+                        del children[j]
+                        continue
+                    else:
+                        child_node=node(value=children[j][0], parent=parent_node)
+                        children[j][2]=child_node
+                        parent_node.add_child(child_node)
+                        fringe.insert(0,children[j])
+                        j+=1
+            
+            fringe=self.astar_dist_ordered_fringe(children=children, fringe=fringe, current_tree=Tree)
+
+        return print(path_str+'\n'+final_str)
     
     def HillClimb(self):
         print("HillClimb Method")
