@@ -139,8 +139,6 @@ class action_space:
         return children, root_path
 
 
-
-
     def BFS(self):
         # print("BFS Method")
         starting_node=node(value=self.start)
@@ -152,6 +150,31 @@ class action_space:
             i=fringe[0]
             if i[0]==self.goal:
                 expanded.append(i)
+
+                try:
+                    # presenting expanded nodes
+                    beginning=0
+                    for i in expanded:
+                        if beginning==0:
+                            final_str=i[0]
+                            beginning+=1
+                        else:
+                            final_str=final_str+','+i[0]
+
+                    # presenting path of nodes
+                    pathway=Tree.root_pathway(child=expanded[-1][2])
+
+                    beginning=0
+                    for i in reversed(pathway):
+                        if beginning==0:
+                            path_str=i
+                            beginning+=1
+                        else:
+                            path_str=path_str+','+i
+
+                except:        
+                    print('Nothing to process...')
+
                 break
             if len(expanded)==1000:
                 return print('Limit has been reached.')
@@ -179,29 +202,8 @@ class action_space:
             expanded.append(fringe[0])
             del fringe[0]            
         
-        try:
-            # presenting expanded nodes
-            beginning=0
-            for i in expanded:
-                if beginning==0:
-                    final_str=i[0]
-                    beginning+=1
-                else:
-                    final_str=final_str+','+i[0]
-
-            # presenting path of nodes
-            pathway=Tree.root_pathway(child=expanded[-1][2])
-
-            beginning=0
-            for i in reversed(pathway):
-                if beginning==0:
-                    path_str=i
-                    beginning+=1
-                else:
-                    path_str=path_str+','+i
-
-        except:        
-            print('Nothing to process...')
+        else:
+            return print('No solution found.')
 
         return print(path_str+'\n'+final_str)
 
@@ -211,7 +213,7 @@ class action_space:
 
 
     def DFS(self):
-        print("DFS Method")
+        # print("DFS Method")
         starting_node=node(value=self.start)
         Tree = tree(root=starting_node)
         fringe=[[self.start, None, starting_node]]
@@ -221,6 +223,30 @@ class action_space:
             i=fringe[0]
             if i[0]==self.goal:
                 expanded.append(i)
+                try:
+                    # presenting expanded nodes
+                    beginning=0
+                    for i in expanded:
+                        if beginning==0:
+                            final_str=i[0]
+                            beginning+=1
+                        else:
+                            final_str=final_str+','+i[0]
+
+                    # presenting path of nodes
+                    pathway=Tree.root_pathway(child=expanded[-1][2])
+
+                    beginning=0
+                    for i in reversed(pathway):
+                        if beginning==0:
+                            path_str=i
+                            beginning+=1
+                        else:
+                            path_str=path_str+','+i
+
+                except:        
+                    print('Nothing to process...')
+
                 break
             if len(expanded)==1000:
                 return print('Limit has been reached.')
@@ -259,34 +285,101 @@ class action_space:
             # for i in fringe:
             #     print(i[0])
         
-        try:
-            # presenting expanded nodes
-            beginning=0
-            for i in expanded:
-                if beginning==0:
-                    final_str=i[0]
-                    beginning+=1
-                else:
-                    final_str=final_str+','+i[0]
+        else:
+            return print('No solution found.')
 
-            # presenting path of nodes
-            pathway=Tree.root_pathway(child=expanded[-1][2])
+        return print(path_str+'\n'+final_str)
 
-            beginning=0
-            for i in reversed(pathway):
-                if beginning==0:
-                    path_str=i
-                    beginning+=1
-                else:
-                    path_str=path_str+','+i
+    def DFS_IDS(self, depth_limit):
+        # print("DFS Method")
+        starting_node=node(value=self.start)
+        Tree = tree(root=starting_node)
+        fringe=[[self.start, None, starting_node]]
+        expanded=[]
 
-        except:        
-            print('Nothing to process...')
+        while len(fringe)!=0:
+            i=fringe[0]
+            if i[0]==self.goal:
+                expanded.append(i)
+                try:
+                    # presenting expanded nodes
+                    beginning=0
+                    for i in expanded:
+                        if beginning==0:
+                            final_str=i[0]
+                            beginning+=1
+                        else:
+                            final_str=final_str+','+i[0]
+
+                    # presenting path of nodes
+                    pathway=Tree.root_pathway(child=expanded[-1][2])
+
+                    beginning=0
+                    for i in reversed(pathway):
+                        if beginning==0:
+                            path_str=i
+                            beginning+=1
+                        else:
+                            path_str=path_str+','+i
+
+                except:        
+                    print('Nothing to process...')
+
+                break
+            if len(expanded)==1000:
+                return print('Limit has been reached.')
+            
+            if depth_limit == 
+            # print('------------------')
+            # print('fringe', fringe)
+            children, parent_node=self.expand_children(number=i[0], changed=i[1], root_path=i[2])
+            children.reverse()
+            expanded.append(fringe[0])
+            del fringe[0]
+            if self.forbidden==None:
+                for k in children:
+                    child_node=node(value=k[0], parent=parent_node)
+                    k[2]=child_node
+                    parent_node.add_child(child_node)
+                    fringe.insert(0,k)
+            else:
+                j=0
+                while len(children)!=j:
+                    if children[j][0] in self.forbidden:
+                        del children[j]
+                        continue
+                    else:
+                        child_node=node(value=children[j][0], parent=parent_node)
+                        children[j][2]=child_node
+                        parent_node.add_child(child_node)
+                        fringe.insert(0,children[j])
+                        j+=1
+            
+            # print('expanded')
+            # for i in expanded:
+            #     print(i[0])
+            # print('children')
+            # for i in children:
+            #     print(i[0])
+            # print('fringe')
+            # for i in fringe:
+            #     print(i[0])
+        
+        else:
+            result='No solution found.'
+
+            return 
 
         return print(path_str+'\n'+final_str)
     
     def IDS(self):
         print("IDS Method")
+        
+        solution_not_found=True
+        depth_count=0
+        while solution_not_found:
+            result = self.DFS_IDS(depth_limit=depth_count)
+            if result != 
 
         return
     

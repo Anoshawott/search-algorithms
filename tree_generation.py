@@ -14,3 +14,13 @@ class tree:
         pathway.append(child.value)
 
         return pathway
+
+    def depth(self, node):
+        root=self.root
+
+        node_count=0
+        while node != root:
+            node_count+=1
+            node=node.parent
+
+        return node_count

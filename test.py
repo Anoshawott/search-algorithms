@@ -1,6 +1,10 @@
-thing=[]
+thing=True
 
-for i in range(5):
-    thing.insert(0,i)
+i=0
+while thing:
+    print(i)
+    i+=1
+    if i==4:
+        thing=False
 
-print(thing)
+print(i)
