@@ -383,6 +383,11 @@ class action_space:
                 children.reverse()
                 expanded.append(fringe[0])
                 del fringe[0]
+
+                temp_expanded=[]
+                for a in expanded:
+                    temp_expanded.append([a[0],a[1]])
+
                 if self.forbidden==None:
                     a=0
                     # print(temp_expanded)
@@ -427,23 +432,49 @@ class action_space:
 
         else:
             result='No solution found.'
+            final_str=''
 
-            return result
+            try:
+                # presenting expanded nodes
+                beginning=0
+                for i in expanded:
+                    if beginning==0:
+                        final_str=i[0]
+                        beginning+=1
+                    else:
+                        final_str=final_str+','+i[0]
 
-        return path_str+'\n'+final_str
+                result='No solution found.'
+                return result, final_str
+
+            except:        
+                return result, final_str
+
+            return result, final_str
+
+        return path_str, final_str
     
     def IDS(self):
         print("IDS Method")
-        
+        final_expand=''
         solution_not_found=True
         depth_count=0
+        ##### EDGE CASE PROBLEM WHERE "No solution found." string may loop infinitely 
+        ##### over trees when all nodes have been expanded as much as possible
         while solution_not_found:
-            result = self.DFS_IDS(depth_limit=depth_count)
-            if result != 'No solution found.':
+            # print(depth_count)
+            result, expanded = self.DFS_IDS(depth_limit=depth_count)
+            # print(expanded)
+            if result == 'No solution found.':
+                if depth_count==0:
+                    final_expand=expanded
+                else:
+                    final_expand=final_expand+','+expanded
                 depth_count+=1
             else:
                 solution_not_found=False
-        return print(result)
+        final_expand=final_expand+','+expanded
+        return print(result+'\n'+final_expand)
     
     def Greedy(self):
         print("Greedy Method")
