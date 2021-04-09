@@ -6,6 +6,16 @@
 
 # print(thing)
 
-value='123'
+# value='123'
 
-print([int(char) for char in value])
+# print([int(char) for char in value])
+
+from collections import defaultdict
+
+data_dict = defaultdict(list)
+
+data_dict['test'].append('values and attributes')
+data_dict['test'].append('more stuff')
+
+
+print(data_dict)

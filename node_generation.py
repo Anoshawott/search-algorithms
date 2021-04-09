@@ -1,5 +1,7 @@
 from node_assignment import node
 from tree_generation import tree
+from collections import defaultdict
+import numpy as np
 
 class action_space:
     def __init__(self, start, goal, forbidden=None):
@@ -493,16 +495,37 @@ class action_space:
 
         return distance
 
-    def dist_ordered_fringe(self, children, fringe):
-        new_temp_fringe={}
+    def dist_ordered_fringe(self, children, fringe):  
+        # print("children",children)
+        # print("fringe",fringe)
+
+        added_fringe=fringe+children
+        # print(children, fringe, added_fringe)      
+        new_temp_fringe = defaultdict(list)
         new_final_fringe=[]
-        for i in children:
+        for i in added_fringe:
             val=i[0]
             dist=self.calc_greedy_distance(value=val)
-            new_temp_fringe[dist]=i
+            new_temp_fringe[dist].append(i)
+
+        # print(new_temp_fringe)
+
+        # print(new_temp_fringe)
+        for i in new_temp_fringe:
+            rev=[]
+            for j in new_temp_fringe[i]:
+                rev.insert(0,j)
+            new_temp_fringe[i]=rev
+
+        # print('after',sorted(new_temp_fringe))
                 
         for i in sorted(new_temp_fringe):
-            new_final_fringe.append(new_temp_fringe[i])
+            # print((i, new_temp_fringe[i]), end =" ")
+            for j in new_temp_fringe[i]:
+                new_final_fringe.append(j)
+
+        # print('++++++++++++++++')
+        # print(new_final_fringe)
 
         return new_final_fringe
 
@@ -567,7 +590,7 @@ class action_space:
                         child_node=node(value=k[0], parent=parent_node)
                         k[2]=child_node
                         parent_node.add_child(child_node)
-                        fringe.insert(0,k)
+                        # fringe.insert(0,k)
                         a+=1
             else:
                 j=0
@@ -579,7 +602,7 @@ class action_space:
                         child_node=node(value=children[j][0], parent=parent_node)
                         children[j][2]=child_node
                         parent_node.add_child(child_node)
-                        fringe.insert(0,children[j])
+                        # fringe.insert(0,children[j])
                         j+=1
             
             fringe=self.dist_ordered_fringe(children=children, fringe=fringe)
@@ -590,29 +613,75 @@ class action_space:
 
 
 
-    def calc_astar_distance(self, node):
+    def calc_astar_distance(self, node, read_tree):
         split_value=[int(char) for char in node[0]]
         split_goal=[int(char) for char in self.goal]
         
+        pathway_nodes=read_tree.root_pathway(child=node[2])
+
+        # del pathway_nodes[0]
+
+        processed_pathway=[]
+
+        for i in pathway_nodes:
+            split_vals=[int(char) for char in i]
+            processed_pathway.append(split_vals)
+
+        # print('++++++++++++++++')
 
         i=0
-        distance=0
+        goal_distance=0
         while i != len(split_value):
-            distance=distance+abs(split_value[i]-split_goal[i])
+            goal_distance=goal_distance+abs(split_value[i]-split_goal[i])
+            i+=1
+        
+        temp_distance=0
+        # print(processed_pathway)
+
+        i=0
+        j=1
+        while i != len(processed_pathway):
+            while j != len(processed_pathway):
+                first_array=np.array(processed_pathway[i])
+                second_array=np.array(processed_pathway[j])
+                diffs=first_array-second_array
+                diffs_abs=np.absolute(diffs)
+                total=np.sum(diffs_abs)
+                temp_distance+=total
+                j+=1
+                break
             i+=1
 
-        return distance
+        # for i in processed_pathway:
+        #     j=0
+        #     while j!=len(split_value):
+        #         temp_distance=temp_distance+abs(split_value[j]-i[j])
+        #         j+=1
+        
+        total_distance=goal_distance+temp_distance
+
+        return total_distance
 
 
     def astar_dist_ordered_fringe(self, children, fringe, current_tree):
-        new_temp_fringe={}
+        added_fringe=fringe+children
+        new_temp_fringe=defaultdict(list)
         new_final_fringe=[]
-        for i in children:
-            dist=self.calc_astar_distance(node=i)
-            new_temp_fringe[dist]=i
+        for i in added_fringe:
+            dist=self.calc_astar_distance(node=i, read_tree=current_tree)
+            new_temp_fringe[dist].append(i)
+
+        for i in new_temp_fringe:
+            rev=[]
+            for j in new_temp_fringe[i]:
+                rev.insert(0,j)
+            new_temp_fringe[i]=rev
                 
         for i in sorted(new_temp_fringe):
-            new_final_fringe.append(new_temp_fringe[i])
+            for j in new_temp_fringe[i]:
+                new_final_fringe.append(j)
+
+        # print(new_final_fringe)
 
         return new_final_fringe
 
@@ -677,7 +746,7 @@ class action_space:
                         child_node=node(value=k[0], parent=parent_node)
                         k[2]=child_node
                         parent_node.add_child(child_node)
-                        fringe.insert(0,k)
+                        # fringe.insert(0,k)
                         a+=1
             else:
                 j=0
@@ -689,12 +758,64 @@ class action_space:
                         child_node=node(value=children[j][0], parent=parent_node)
                         children[j][2]=child_node
                         parent_node.add_child(child_node)
-                        fringe.insert(0,children[j])
+                        # fringe.insert(0,children[j])
                         j+=1
             
             fringe=self.astar_dist_ordered_fringe(children=children, fringe=fringe, current_tree=Tree)
 
+            # for i in fringe:
+            #     print(i[0])
+
         return print(path_str+'\n'+final_str)
+    
+    def calc_greedy_distance(self, value):
+        split_value=[int(char) for char in value]
+        split_goal=[int(char) for char in self.goal]
+
+        i=0
+        distance=0
+        while i != len(split_value):
+            distance=distance+abs(split_value[i]-split_goal[i])
+            i+=1
+
+        return distance
+
+
+
+
+    def dist_ordered_fringe(self, children, fringe):  
+        # print("children",children)
+        # print("fringe",fringe)
+
+        added_fringe=fringe+children
+        # print(children, fringe, added_fringe)      
+        new_temp_fringe = defaultdict(list)
+        new_final_fringe=[]
+        for i in added_fringe:
+            val=i[0]
+            dist=self.calc_greedy_distance(value=val)
+            new_temp_fringe[dist].append(i)
+
+        # print(new_temp_fringe)
+
+        # print(new_temp_fringe)
+        for i in new_temp_fringe:
+            rev=[]
+            for j in new_temp_fringe[i]:
+                rev.insert(0,j)
+            new_temp_fringe[i]=rev
+
+        # print('after',sorted(new_temp_fringe))
+                
+        for i in sorted(new_temp_fringe):
+            # print((i, new_temp_fringe[i]), end =" ")
+            for j in new_temp_fringe[i]:
+                new_final_fringe.append(j)
+
+        # print('++++++++++++++++')
+        # print(new_final_fringe)
+
+        return new_final_fringe
     
     def HillClimb(self):
         print("HillClimb Method")
