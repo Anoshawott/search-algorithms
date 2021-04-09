@@ -768,6 +768,11 @@ class action_space:
 
         return print(path_str+'\n'+final_str)
     
+
+
+
+
+
     def calc_greedy_distance(self, value):
         split_value=[int(char) for char in value]
         split_goal=[int(char) for char in self.goal]
@@ -780,14 +785,12 @@ class action_space:
 
         return distance
 
-
-
-
-    def dist_ordered_fringe(self, children, fringe):  
+    def dist_ordered_fringe_hillclimb(self, children, fringe, current_node):  
         # print("children",children)
         # print("fringe",fringe)
+        current_state=self.calc_greedy_distance(value=current_node[0])
 
-        added_fringe=fringe+children
+        added_fringe=children
         # print(children, fringe, added_fringe)      
         new_temp_fringe = defaultdict(list)
         new_final_fringe=[]
@@ -809,8 +812,9 @@ class action_space:
                 
         for i in sorted(new_temp_fringe):
             # print((i, new_temp_fringe[i]), end =" ")
-            for j in new_temp_fringe[i]:
-                new_final_fringe.append(j)
+            if i<current_state:
+                for j in new_temp_fringe[i]:
+                    new_final_fringe.append(j)
 
         # print('++++++++++++++++')
         # print(new_final_fringe)
@@ -818,6 +822,94 @@ class action_space:
         return new_final_fringe
     
     def HillClimb(self):
-        print("HillClimb Method")
+        # print("HillClimb Method")
+        starting_node=node(value=self.start)
+        Tree = tree(root=starting_node)
+        fringe=[[self.start, None, starting_node]]
+        expanded=[]
 
-        return
+        while len(fringe)!=0:
+            i=fringe[0]
+            if i[0]==self.goal:
+                expanded.append(i)
+                try:
+                    # presenting expanded nodes
+                    beginning=0
+                    for i in expanded:
+                        if beginning==0:
+                            final_str=i[0]
+                            beginning+=1
+                        else:
+                            final_str=final_str+','+i[0]
+
+                    # presenting path of nodes
+                    pathway=Tree.root_pathway(child=expanded[-1][2])
+
+                    beginning=0
+                    for i in reversed(pathway):
+                        if beginning==0:
+                            path_str=i
+                            beginning+=1
+                        else:
+                            path_str=path_str+','+i
+
+                except:        
+                    print('Nothing to process...')
+
+                break
+            if len(expanded)==1000:
+                return print('Limit has been reached.')
+            # print('------------------')
+            # print('fringe', fringe)
+            children, parent_node=self.expand_children(number=i[0], changed=i[1], root_path=i[2])
+            expanded.append(fringe[0])
+
+            temp_expanded=[]
+            for a in expanded:
+                temp_expanded.append([a[0],a[1]])
+
+            if self.forbidden==None:
+                a=0
+                # print(temp_expanded)
+                while a != len(children):
+                    k = children[a]
+                    if [k[0],k[1]] in temp_expanded:
+                        # print([k[0],k[1]])
+                        del children[a]
+                    else:
+                        # print('else')
+                        child_node=node(value=k[0], parent=parent_node)
+                        k[2]=child_node
+                        parent_node.add_child(child_node)
+                        # fringe.insert(0,k)
+                        a+=1
+            else:
+                j=0
+                while len(children)!=j:
+                    if children[j][0] in self.forbidden or [children[j][0],children[j][1]] in temp_expanded:
+                        del children[j]
+                        continue
+                    else:
+                        child_node=node(value=children[j][0], parent=parent_node)
+                        children[j][2]=child_node
+                        parent_node.add_child(child_node)
+                        # fringe.insert(0,children[j])
+                        j+=1
+            
+            fringe=self.dist_ordered_fringe_hillclimb(children=children, fringe=fringe, current_node=fringe[0])
+        
+        else:
+            path_str='No solution found.'
+            try:
+                    # presenting expanded nodes
+                    beginning=0
+                    for i in expanded:
+                        if beginning==0:
+                            final_str=i[0]
+                            beginning+=1
+                        else:
+                            final_str=final_str+','+i[0]
+            except:        
+                final_str=''
+
+        return print(path_str+'\n'+final_str)
