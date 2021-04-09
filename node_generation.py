@@ -457,7 +457,7 @@ class action_space:
         return path_str, final_str
     
     def IDS(self):
-        print("IDS Method")
+        # print("IDS Method")
         final_expand=''
         solution_not_found=True
         depth_count=0
@@ -686,7 +686,7 @@ class action_space:
         return new_final_fringe
 
     def A_Star(self):
-        print("A_Star Method")
+        # print("A_Star Method")
         starting_node=node(value=self.start)
         Tree = tree(root=starting_node)
         fringe=[[self.start, None, starting_node]]
